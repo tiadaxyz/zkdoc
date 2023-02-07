@@ -1,0 +1,12 @@
+[package]
+name = "core_server"
+version = "0.0.0"
+edition = "2021"
+
+
+[dependencies]
+actix-web = "4"
+serde = { version = "1.0", features = ["derive"] }
+
+# local lib
+core_lib.workspace = true
