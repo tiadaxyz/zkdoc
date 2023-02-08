@@ -1,5 +1,5 @@
 use serde::{Serialize, Deserialize};
-use medi_0_core::services::services::{get_file_commitment_and_selected_row};
+use core_lib::services::services::{get_file_commitment_and_selected_row};
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder, Result};
 
 const ROW: usize = 10;
@@ -26,11 +26,18 @@ async fn generate_commitment(req: web::Json<GenerateCommitmentRequest>) -> Resul
     }))
 }
 
+/// This is to test the server
+#[get("/hello/{name}")]
+async fn greet(name: web::Path<String>) -> impl Responder {
+    format!("Hello {name}!")
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .service(generate_commitment)
+            .service(greet)
     })
     .bind(("127.0.0.1", 8080))?
     .run()
