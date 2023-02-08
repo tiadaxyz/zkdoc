@@ -12,3 +12,4 @@ log = "0.4.0"
 env_logger = "0.9.0"
 # local lib
 core_lib.workspace = true
+actix-cors = "0.6.4"

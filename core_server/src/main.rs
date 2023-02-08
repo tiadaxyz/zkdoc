@@ -1,5 +1,8 @@
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder, Result, middleware};
-use core_lib::services::services::{get_file_commitment_and_selected_row, generate_proof, verify_correct_selector, get_selected_row};
+use actix_cors::Cors;
+use actix_web::{get, middleware, post, web, App, HttpResponse, HttpServer, Responder, Result};
+use core_lib::services::services::{
+    generate_proof, get_file_commitment_and_selected_row, get_selected_row, verify_correct_selector,
+};
 use serde::{Deserialize, Serialize};
 
 const ROW: usize = 10;
@@ -26,12 +29,12 @@ struct ProofVerificationRequest {
     proof: Vec<u8>,
     row_title: String,
     row_content: String,
-    commitment: String
+    commitment: String,
 }
 
 #[derive(Serialize)]
 struct ProofVerificationResponse {
-    valid: bool
+    valid: bool,
 }
 
 /// This is for health check
@@ -41,20 +44,22 @@ async fn hello() -> impl Responder {
 }
 
 #[post("/generate-commitment")]
-async fn generate_commitment_handler(req: web::Json<GenerateCommitmentAndProofRequest>) -> Result<impl Responder> {
+async fn generate_commitment_handler(
+    req: web::Json<GenerateCommitmentAndProofRequest>,
+) -> Result<impl Responder> {
     let commitment = get_file_commitment_and_selected_row(
         req.row_titles.to_owned(),
         req.row_contents.to_owned(),
         req.row_selectors.to_owned(),
     );
 
-    Ok(web::Json(GenerateCommitmentResponse {
-        commitment,
-    }))
+    Ok(web::Json(GenerateCommitmentResponse { commitment }))
 }
 
 #[post("/generate-proof")]
-async fn generate_proof_handler(req: web::Json<GenerateCommitmentAndProofRequest>) -> Result<impl Responder> {
+async fn generate_proof_handler(
+    req: web::Json<GenerateCommitmentAndProofRequest>,
+) -> Result<impl Responder> {
     // FYI this runs for 30+ seconds
     let proof = generate_proof(
         req.row_titles.to_owned(),
@@ -62,17 +67,19 @@ async fn generate_proof_handler(req: web::Json<GenerateCommitmentAndProofRequest
         req.row_selectors.to_owned(),
     );
 
-    Ok(web::Json(GenerateProofResponse {
-        proof,
-    }))
+    Ok(web::Json(GenerateProofResponse { proof }))
 }
 
 #[post("/verify-proof")]
 async fn verify_proof_handler(req: web::Json<ProofVerificationRequest>) -> Result<impl Responder> {
     let row_accumulator = get_selected_row(req.row_title.to_owned(), req.row_content.to_owned());
-    let is_valid = verify_correct_selector(req.commitment.to_owned(), row_accumulator, req.proof.to_owned());
+    let is_valid = verify_correct_selector(
+        req.commitment.to_owned(),
+        row_accumulator,
+        req.proof.to_owned(),
+    );
 
-    Ok(web::Json(ProofVerificationResponse { valid: is_valid}))
+    Ok(web::Json(ProofVerificationResponse { valid: is_valid }))
 }
 
 #[actix_web::main]
@@ -82,7 +89,12 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
 
     HttpServer::new(|| {
+        let cors = Cors::default()
+            .allow_any_origin()
+            .allowed_methods(vec!["GET", "POST"]);
+
         App::new()
+            .wrap(cors)
             .wrap(middleware::Logger::default())
             .wrap(middleware::Logger::new("[{method} {uri} {status} {response_time}ms {response_length}b]\n{request}\n{response}"))
             .service(hello)
