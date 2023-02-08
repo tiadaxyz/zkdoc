@@ -1,19 +1,14 @@
 use crate::circuits::file_hasher::FileHashPartialCircuit;
-use crate::utils::conversion::{
-    convert_hash_u32_to_u64, convert_hash_u32_to_u64_LE, convert_hash_u64_to_u32,
-    convert_to_u64_array, convert_u32_to_u64_BE, convert_u64_to_u32_BE,
-};
-use crate::utils::sha256::get_sha256;
+use crate::utils::sha256::{get_sha256, sha256_str_to_u64_arr};
 
-use ff::PrimeFieldBits;
 use halo2_gadgets::poseidon::primitives::{self as poseidon, ConstantLength, P128Pow5T3};
-use halo2_proofs::arithmetic::FieldExt;
 use halo2_proofs::circuit::Value;
 use halo2_proofs::pasta::{EqAffine, Fp};
 use halo2_proofs::plonk::{create_proof, keygen_pk, keygen_vk, verify_proof, SingleVerifier};
 use halo2_proofs::poly::commitment::Params;
 use halo2_proofs::transcript::{Blake2bRead, Blake2bWrite, Challenge255};
 use rand_core::OsRng;
+use sha2::digest::typenum::U256;
 
 const ROW: usize = 10;
 
@@ -112,12 +107,12 @@ pub fn get_file_commitment_and_selected_row(
     format!("{:?}", file_commitment)
 }
 
-pub fn get_selected_row(row_title_str: [String; 8], row_content_str: [String; 8]) -> String {
+pub fn get_selected_row(row_title_str: String, row_content_str: String) -> String {
     let row_title_u64 = get_sha256(row_title_str.as_str());
     let row_content_u64 = get_sha256(row_content_str.as_str());
 
-    let row_title = row_title_u64.map(|y| return Fp::from(y));
-    let row_content = row_content_u64.map(|y| return Fp::from(y));
+    let row_title = row_title_u64.map(Fp::from);
+    let row_content = row_content_u64.map(Fp::from);
 
     let title_message_1 = [row_title[0], row_title[1]];
     let title_message_2 = [row_title[2], row_title[3]];
@@ -143,7 +138,6 @@ pub fn get_selected_row(row_title_str: [String; 8], row_content_str: [String; 8]
 
     format!("{:?}", output)
 }
-
 
 pub fn generate_proof(
     row_title_str: [String; ROW],
@@ -249,8 +243,10 @@ pub fn verify_correct_selector(
     let k = 12;
     let params: Params<EqAffine> = Params::new(k);
 
-    let accumulator_hash_u64_array = get_sha256(accumulator_hash.as_str()).into_iter().rev().collect();
-    let row_accumulator_u64_array = get_sha256(row_accumulator.as_str()).into_iter().rev().collect();
+    let mut accumulator_hash_u64_array= sha256_str_to_u64_arr(&accumulator_hash);
+    accumulator_hash_u64_array.reverse();
+    let mut row_accumulator_u64_array = sha256_str_to_u64_arr(&row_accumulator);
+    row_accumulator_u64_array.reverse();
 
     let accumulator_hash = Fp::from_raw(accumulator_hash_u64_array);
     let row_accumulator = Fp::from_raw(row_accumulator_u64_array);
