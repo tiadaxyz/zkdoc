@@ -1,4 +1,4 @@
-use actix_web::{post, web, App, HttpServer, Responder, Result};
+use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder, Result};
 use core_lib::services::services::{get_file_commitment_and_selected_row, generate_proof, verify_correct_selector, get_selected_row};
 use serde::{Deserialize, Serialize};
 
@@ -34,6 +34,11 @@ struct ProofVerificationResponse {
     valid: bool
 }
 
+/// This is for health check
+#[get("/")]
+async fn hello() -> impl Responder {
+    HttpResponse::Ok().body("Rusty is fine!")
+}
 
 #[post("/generate-commitment")]
 async fn generate_commitment_handler(req: web::Json<GenerateCommitmentAndProofRequest>) -> Result<impl Responder> {
@@ -75,6 +80,7 @@ async fn main() -> std::io::Result<()> {
     println!("Running on 8080");
     HttpServer::new(|| {
         App::new()
+            .service(hello)
             .service(generate_commitment_handler)
             .service(generate_proof_handler)
             .service(verify_proof_handler)
