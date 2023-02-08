@@ -3,6 +3,7 @@ use crate::utils::conversion::{
     convert_hash_u32_to_u64, convert_hash_u32_to_u64_LE, convert_hash_u64_to_u32,
     convert_to_u64_array, convert_u32_to_u64_BE, convert_u64_to_u32_BE,
 };
+use crate::utils::sha256::get_sha256;
 
 use ff::PrimeFieldBits;
 use halo2_gadgets::poseidon::primitives::{self as poseidon, ConstantLength, P128Pow5T3};
@@ -16,9 +17,9 @@ use rand_core::OsRng;
 
 const ROW: usize = 10;
 
-pub fn generate_row_hash(row_title_u32: [u32; 8], row_content_u32: [u32; 8]) -> String {
-    let row_title_u64 = convert_hash_u32_to_u64(row_title_u32);
-    let row_content_u64 = convert_hash_u32_to_u64(row_content_u32);
+pub fn generate_row_hash(row_title_str: String, row_content_str: String) -> String {
+    let row_title_u64 = get_sha256(row_title_str.as_str());
+    let row_content_u64 = get_sha256(row_content_str.as_str());
 
     let row_title = row_title_u64.map(|x| return Fp::from(x));
     let row_content = row_content_u64.map(|x| return Fp::from(x));
@@ -49,23 +50,24 @@ pub fn generate_row_hash(row_title_u32: [u32; 8], row_content_u32: [u32; 8]) -> 
 }
 
 pub fn get_file_commitment_and_selected_row(
-    row_title_u32: [[u32; 8]; ROW],
-    row_content_u32: [[u32; 8]; ROW],
-    row_selector_u64: [u64; ROW],
+    row_titles: [String; ROW],
+    row_contents: [String; ROW],
+    row_selectors: [u64; ROW],
 ) -> String {
-    let row_title_u64 = row_title_u32.map(|x| return convert_hash_u32_to_u64(x));
-    let row_content_u64 = row_content_u32.map(|x| return convert_hash_u32_to_u64(x));
+    let row_title_u64 = row_titles.map(|x| return get_sha256(x.as_str()));
+    let row_content_u64 = row_contents.map(|x| return get_sha256(x.as_str()));
 
-    let row_title = row_title_u64.map(|x| x.map(|y| return Fp::from(y)));
-    let row_content = row_content_u64.map(|x| x.map(|y| return Fp::from(y)));
-    let row_selector = row_selector_u64.map(|x| return Fp::from(x));
+    let row_title_fp = row_title_u64.map(|x| x.map(|y| return Fp::from(y)));
+    let row_content_fp = row_content_u64.map(|x| x.map(|y| return Fp::from(y)));
+    let row_selector_fp = row_selectors.map(|x| return Fp::from(x));
 
     let mut row_hash = Vec::new();
     let mut row_accumulator = Fp::zero();
-    for ((&title, &content), &row_selector) in row_title
+
+    for ((&title, &content), &row_selector) in row_title_fp
         .iter()
-        .zip(row_content.iter())
-        .zip(row_selector.iter())
+        .zip(row_content_fp.iter())
+        .zip(row_selector_fp.iter())
     {
         let title_message_1 = [title[0], title[1]];
         let title_message_2 = [title[2], title[3]];
@@ -101,7 +103,7 @@ pub fn get_file_commitment_and_selected_row(
     let mut file_commitment = poseidon::Hash::<_, P128Pow5T3, ConstantLength<2>, 3, 2>::init()
         .hash([row_hash[0], row_hash[1]]);
 
-    for i in 2..row_content.len() {
+    for i in 2..row_content_fp.len() {
         let message = [file_commitment, row_hash[i]];
         let output = poseidon::Hash::<_, P128Pow5T3, ConstantLength<2>, 3, 2>::init().hash(message);
         file_commitment = output;
@@ -110,9 +112,9 @@ pub fn get_file_commitment_and_selected_row(
     format!("{:?}", file_commitment)
 }
 
-pub fn get_selected_row(row_title_u32: [u32; 8], row_content_u32: [u32; 8]) -> String {
-    let row_title_u64 = convert_hash_u32_to_u64(row_title_u32);
-    let row_content_u64 = convert_hash_u32_to_u64(row_content_u32);
+pub fn get_selected_row(row_title_str: [String; 8], row_content_str: [String; 8]) -> String {
+    let row_title_u64 = get_sha256(row_title_str.as_str());
+    let row_content_u64 = get_sha256(row_content_str.as_str());
 
     let row_title = row_title_u64.map(|y| return Fp::from(y));
     let row_content = row_content_u64.map(|y| return Fp::from(y));
@@ -142,18 +144,17 @@ pub fn get_selected_row(row_title_u32: [u32; 8], row_content_u32: [u32; 8]) -> S
     format!("{:?}", output)
 }
 
-// row_title_js, row_content_js, row_selector_js consist of 4 Fp from sha256 result of string
-// this needs to be done in the js side
+
 pub fn generate_proof(
-    row_title_u32: [[u32; 8]; ROW],
-    row_content_u32: [[u32; 8]; ROW],
+    row_title_str: [String; ROW],
+    row_content_str: [String; ROW],
     row_selector_u64: [u64; ROW],
 ) -> Vec<u8> {
     let k = 12;
     let params: Params<EqAffine> = Params::new(k);
 
-    let row_title_u64 = row_title_u32.map(|x| return convert_hash_u32_to_u64(x));
-    let row_content_u64 = row_content_u32.map(|x| return convert_hash_u32_to_u64(x));
+    let row_title_u64 = row_title_str.map(|x| return get_sha256(x.as_str()));
+    let row_content_u64 = row_content_str.map(|x| return get_sha256(x.as_str()));
 
     let row_title = row_title_u64.map(|x| x.map(|y| return Fp::from(y)));
     let row_content = row_content_u64.map(|x| x.map(|y| return Fp::from(y)));
@@ -239,8 +240,8 @@ pub fn generate_proof(
 
 // pass in accumulator_hash and row_accumulator in the form of [u64;4]
 pub fn verify_correct_selector(
-    accumulator_hash: [u32; 8],
-    row_accumulator: [u32; 8],
+    accumulator_hash: String,
+    row_accumulator: String,
     proof: Vec<u8>,
 ) -> bool {
     // verify
@@ -248,8 +249,8 @@ pub fn verify_correct_selector(
     let k = 12;
     let params: Params<EqAffine> = Params::new(k);
 
-    let accumulator_hash_u64_array = convert_hash_u32_to_u64_LE(accumulator_hash);
-    let row_accumulator_u64_array = convert_hash_u32_to_u64_LE(row_accumulator);
+    let accumulator_hash_u64_array = get_sha256(accumulator_hash.as_str()).into_iter().rev().collect();
+    let row_accumulator_u64_array = get_sha256(row_accumulator.as_str()).into_iter().rev().collect();
 
     let accumulator_hash = Fp::from_raw(accumulator_hash_u64_array);
     let row_accumulator = Fp::from_raw(row_accumulator_u64_array);

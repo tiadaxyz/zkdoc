@@ -18,6 +18,7 @@ pub fn get_sha256(input: &str) -> [u64;4] {
     let pow_6 = u64::pow(256, 6);
     let pow_7 = u64::pow(256, 7);
     let mut res_u64 = Vec::new();
+
     for i in 0..4 {
         let starting_index = i * 8;
         let res = x[starting_index + 7] as u64 * pow_0
