@@ -1,5 +1,5 @@
 use halo2_gadgets::poseidon::primitives::{self as poseidon, ConstantLength, P128Pow5T3};
-use halo2_proofs::{arithmetic::FieldExt, pasta::Fp};
+use halo2_proofs::{pasta::Fp};
 
 pub fn convert_hash_u32_to_u64(hash_u32: [u32; 8]) -> [u64; 4] {
     let mut res = Vec::new();
@@ -34,51 +34,6 @@ fn convert_u64_to_u32_BE(input: u64) -> [u32; 2] {
 
     [upper, lower]
 }
-
-// fn convert_hash_u32_to_u64(hash_u32: [u32; 8]) -> [u64; 4] {
-//     let mut res = Vec::new();
-//     for i in 0..4 {
-//         let starting_index = i * 2;
-//         let arr = [hash_u32[starting_index], hash_u32[starting_index + 1]];
-//         let res_u64 = convert_u32_to_u64_BE(arr);
-//         res.push(res_u64);
-//     }
-
-//     res.try_into().unwrap()
-// }
-
-// pub fn get_selected_row(row_title_js: JsValue, row_content_js: JsValue) -> JsValue {
-//     let row_title_u32 = row_title_js.into_serde::<[u32; 8]>().unwrap();
-//     let row_content_u32 = row_content_js.into_serde::<[u32; 8]>().unwrap();
-
-//     let row_title_u64 = convert_hash_u32_to_u64(row_title_u32);
-//     let row_content_u64 = convert_hash_u32_to_u64(row_content_u32);
-
-//     let row_title = row_title_u64.map(|y| return Fp::from(y));
-//     let row_content = row_content_u64.map(|y| return Fp::from(y));
-
-//     let title_message_1 = [row_title[0], row_title[1]];
-//     let title_message_2 = [row_title[2], row_title[3]];
-
-//     let title_message_1_output =
-//         poseidon::Hash::<_, P128Pow5T3, ConstantLength<2>, 3, 2>::init().hash(title_message_1);
-//     let title_message_2_output =
-//         poseidon::Hash::<_, P128Pow5T3, ConstantLength<2>, 3, 2>::init().hash(title_message_2);
-//     let title_hash = poseidon::Hash::<_, P128Pow5T3, ConstantLength<2>, 3, 2>::init()
-//         .hash([title_message_1_output, title_message_2_output]);
-
-//     let content_message_1 = [row_content[0], row_content[1]];
-//     let content_message_2 = [row_content[2], row_content[3]];
-
-//     let content_message_1_output =
-//         poseidon::Hash::<_, P128Pow5T3, ConstantLength<2>, 3, 2>::init().hash(content_message_1);
-//     let content_message_2_output =
-//         poseidon::Hash::<_, P128Pow5T3, ConstantLength<2>, 3, 2>::init().hash(content_message_2);
-//     let content_hash = poseidon::Hash::<_, P128Pow5T3, ConstantLength<2>, 3, 2>::init()
-//         .hash([content_message_1_output, content_message_2_output]);
-//     let message = [title_hash, content_hash];
-//     let output = poseidon::Hash::<_, P128Pow5T3, ConstantLength<2>, 3, 2>::init().hash(message);
-// }
 
 pub fn get_file_commitment_and_selected_row<const L: usize>(
     row_title: [[Fp; 4]; L],

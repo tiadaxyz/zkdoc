@@ -42,6 +42,21 @@ pub fn get_sha256(input: &str) -> [u64;4] {
     res_u64
 }
 
+pub fn sha256_str_to_u64_arr (input: &str) -> [u64;4] {
+    let new_val = input.trim_start_matches("0x");
+    if new_val.len() != 64 {
+        panic!("Incorrect length of sha256");
+    }
+
+    let mut new_u64_arr = Vec::new();
+    new_u64_arr.push(u64::from_str_radix(new_val[0..16].to_owned().as_str(), 16).unwrap());
+    new_u64_arr.push(u64::from_str_radix(new_val[16..32].to_owned().as_str(), 16).unwrap());
+    new_u64_arr.push(u64::from_str_radix(new_val[32..48].to_owned().as_str(), 16).unwrap());
+    new_u64_arr.push(u64::from_str_radix(new_val[48..64].to_owned().as_str(), 16).unwrap());
+
+    new_u64_arr.as_slice().try_into().unwrap()
+}
+
 #[cfg(test)]
 mod tests {
     use super::get_sha256;
