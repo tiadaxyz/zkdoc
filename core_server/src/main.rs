@@ -90,7 +90,7 @@ async fn main() -> std::io::Result<()> {
             .service(generate_proof_handler)
             .service(verify_proof_handler)
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(("0.0.0.0", 8080))?
     .run()
     .await
 }
