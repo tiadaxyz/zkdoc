@@ -1,4 +1,4 @@
-use actix_web::{post, web, App, HttpServer, Responder, Result};
+use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder, Result, middleware};
 use core_lib::services::services::{get_file_commitment_and_selected_row, generate_proof, verify_correct_selector, get_selected_row};
 use serde::{Deserialize, Serialize};
 
@@ -34,6 +34,11 @@ struct ProofVerificationResponse {
     valid: bool
 }
 
+/// This is for health check
+#[get("/")]
+async fn hello() -> impl Responder {
+    HttpResponse::Ok().body("Rusty is fine!")
+}
 
 #[post("/generate-commitment")]
 async fn generate_commitment_handler(req: web::Json<GenerateCommitmentAndProofRequest>) -> Result<impl Responder> {
@@ -73,13 +78,19 @@ async fn verify_proof_handler(req: web::Json<ProofVerificationRequest>) -> Resul
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     println!("Running on 8080");
+    std::env::set_var("RUST_LOG", "actix_web=info");
+    env_logger::init();
+
     HttpServer::new(|| {
         App::new()
+            .wrap(middleware::Logger::default())
+            .wrap(middleware::Logger::new("[{method} {uri} {status} {response_time}ms {response_length}b]\n{request}\n{response}"))
+            .service(hello)
             .service(generate_commitment_handler)
             .service(generate_proof_handler)
             .service(verify_proof_handler)
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(("0.0.0.0", 8080))?
     .run()
     .await
 }
