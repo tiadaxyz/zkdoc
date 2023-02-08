@@ -38,7 +38,8 @@ fn main(){
 
     let matches = cmd.get_matches();
     /// Matches subcommand and runs the corresponding functions
-    let matches = match matches.subcommand() {
+    // let matches = match matches.subcommand() {
+    match matches.subcommand() {
         Some(("gen-commitment", matches)) => {
             println!("gen-commitment ran successfully");
             // println!("input-file: {}", matches.value_of("input-file").unwrap());
@@ -49,6 +50,10 @@ fn main(){
         Some(("verify", matches)) => {
             println!("verify ran successfully");
         },
-        _ => unreachable!("clap should ensure we don't get here"),
+        None => {
+            println!("No subcommand was used");
+            process::exit(1);
+        },
+        _ => unreachable!("clap should ensure we don't get here"),        
     };
 }
