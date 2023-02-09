@@ -1,6 +1,6 @@
 [package]
 name = "zkdoc_sdk"
-version = "0.0.0"
+version = "0.0.1"
 description = "SDK for zkdoc allowing plug and play with any application"
 edition = "2021"
 license = "MIT"

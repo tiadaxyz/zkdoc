@@ -1,6 +1,6 @@
 [package]
 name = "zkdoc_cli"
-version = "0.0.0"
+version = "0.0.1"
 description = "CLI for zkdoc that allows generation of commitment, proof and verification of proof."
 edition = "2021"
 license = "MIT"

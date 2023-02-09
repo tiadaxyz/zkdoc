@@ -7,4 +7,4 @@ members = [
 
 [workspace.dependencies]
 # local deps
-zkdoc_sdk = { path = "./zkdoc_sdk", version = "0.0.0" }
+zkdoc_sdk = { path = "./zkdoc_sdk", version = "0.0.1" }
