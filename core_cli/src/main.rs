@@ -7,8 +7,6 @@ use core_lib::services::services::{
 };
 use serde::{Deserialize, Serialize};
 use spinners::{Spinner, Spinners};
-// use std::fs;
-// use std::process;
 use std::io::prelude::*;
 use std::time::{Duration, Instant};
 use std::{fs, fs::File, process, str, str::FromStr};
@@ -74,7 +72,6 @@ fn main() {
                 ),
         );
     // Choose a spinner style
-    // let spinner = Spinner::new(Spinners::Dots, "Elapsed time: ".to_owned());
     let spinner_name = "Dots12".to_string();
 
     let matches = cmd.get_matches();
@@ -94,7 +91,7 @@ fn main() {
             let json_contents =
                 serde_json::from_str::<GenerateCommitmentAndProofRequest>(&contents)
                     .unwrap_or_else(|_| { panic!("{}", "Failed to deserialize JSON file.\nRefer to the sample 'gen-commitment.json' as reference".red().to_string()) });
-            println!("{}: {}", "Input file path".blue().bold(), input_file.blue());
+            println!("{}: {}", "Input file".blue().bold(), input_file.blue());
             // Start the spinner animation
             let mut sp = Spinner::with_timer(
                 Spinners::from_str(&spinner_name).unwrap(),
@@ -112,7 +109,7 @@ fn main() {
             match save_to_file("commitment.txt", &commitment) {
                 Ok(_) => println!(
                     "{}: {}",
-                    "Commitment saved to file".green().bold(),
+                    "Output file".green().bold(),
                     "commitment.txt".green()
                 ),
                 Err(_) => println!(
@@ -136,7 +133,7 @@ fn main() {
             let json_contents =
                 serde_json::from_str::<GenerateCommitmentAndProofRequest>(&contents)
                     .unwrap_or_else(|_| { panic!("{}", "Failed to deserialize JSON file.\nRefer to the sample 'gen-proof.json' as reference".red().to_string()) });
-            println!("{}: {}", "Input file path".blue().bold(), input_file.blue());
+            println!("{}: {}", "Input file".blue().bold(), input_file.blue());
             // Start the spinner animation
             let mut sp = Spinner::with_timer(
                 Spinners::from_str(&spinner_name).unwrap(),
@@ -148,15 +145,13 @@ fn main() {
                 json_contents.row_contents.to_owned(),
                 json_contents.row_selectors.to_owned(),
             );
-            // let proof_string = String::from_utf8(proof).unwrap();
             sp.stop_with_newline();
-            // println!("{}: {:?}", "Proof".green().bold(), proof);
             /// Save value to file
             let proof_string = serde_json::to_string(&proof).unwrap();
             match save_to_file("proof.txt", &proof_string) {
                 Ok(_) => println!(
                     "{}: {}",
-                    "proof saved to file".green().bold(),
+                    "Output file".green().bold(),
                     "proof.txt".green()
                 ),
                 Err(_) => println!(
@@ -180,7 +175,7 @@ fn main() {
             let json_contents =
                 serde_json::from_str::<ProofVerificationRequest>(&contents)
                     .unwrap_or_else(|_| { panic!("{}", "Failed to deserialize JSON file.\nRefer to the sample 'gen-proof.json' as reference".red().to_string()) });
-            println!("{}: {}", "Input file path".blue().bold(), input_file.blue());
+            println!("{}: {}", "Input file".blue().bold(), input_file.blue());
             // Start the spinner animation
             let mut sp = Spinner::with_timer(
                 Spinners::from_str(&spinner_name).unwrap(),
@@ -200,7 +195,7 @@ fn main() {
             match is_valid {
                 true => println!(
                     "{}: {}",
-                    "Proof verification".green().bold(),
+                    "Proof verification result".green().bold(),
                     "true".green()
                 ),
                 false => println!("{}: {}", "Proof verification".green().bold(), "false".red()),
