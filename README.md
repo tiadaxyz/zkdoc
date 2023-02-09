@@ -1,6 +1,14 @@
-<<<<<<< HEAD
-# medi-0 core
-## core_cli
+# zkdoc
+
+This repository contains the source code for `zkdoc_sdk`, `zkdoc_cli` and `zkdoc_server`.
+
+## `zkdoc_sdk`
+
+### Usage
+
+## `zkdoc_cli`
+
+### Usage
 ```bash
 # Build a release for core_cli
 cargo build -p core_cli --release
@@ -20,18 +28,6 @@ Options:
   -h, --help     Print help
   -V, --version  Print version
 ```
-=======
-# zkdoc
-
-This repository contains the source code for `zkdoc_sdk`, `zkdoc_cli` and `zkdoc_server`.
-
-## `zkdoc_sdk`
-
-### Usage
-
-## `zkdoc_cli`
-
-### Usage
 
 ## `zkdoc_server`
 
@@ -47,4 +43,3 @@ cargo run -p zkdoc_server
 ```
 
 With that, you should have a server running at port `8080`.
->>>>>>> d4c4cd4 (chore: update Cargo.toml in preperation for publishing)
