@@ -34,10 +34,10 @@ fn save_to_file(filename: &str, data: &str) -> Result<(), std::io::Error> {
 }
 
 fn main() {
-    let cmd = clap::Command::new("medi0-cli")
-        .about("Medi0 CLI")
+    let cmd = clap::Command::new("zkdoc-cli")
+        .about("ZKDoc CLI")
         .version("0.1.0")
-        .author("Medi0 Team")
+        .author("ZKDoc Team")
         .subcommand(
             Command::new("gen-commitment")
                 .about("Generates a commitment for a given file")

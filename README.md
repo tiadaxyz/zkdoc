@@ -14,9 +14,9 @@ This repository contains the source code for `zkdoc_sdk`, `zkdoc_cli` and `zkdoc
 cargo build -p core_cli --release
 ```
 ```bash
-Medi0 CLI
+ZKDoc CLI
 
-Usage: core_cli [COMMAND]
+Usage: zkdoc_cli [COMMAND]
 
 Commands:
   gen-commitment  Generates a commitment for a given file
