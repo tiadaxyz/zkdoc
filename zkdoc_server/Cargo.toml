@@ -2,7 +2,7 @@
 name = "zkdoc_server"
 version = "0.0.0"
 edition = "2021"
-
+publish = false
 
 [dependencies]
 actix-web = "4"

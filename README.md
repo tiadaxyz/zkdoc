@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # medi-0 core
 ## core_cli
 ```bash
@@ -19,3 +20,31 @@ Options:
   -h, --help     Print help
   -V, --version  Print version
 ```
+=======
+# zkdoc
+
+This repository contains the source code for `zkdoc_sdk`, `zkdoc_cli` and `zkdoc_server`.
+
+## `zkdoc_sdk`
+
+### Usage
+
+## `zkdoc_cli`
+
+### Usage
+
+## `zkdoc_server`
+
+This is not published on crates.io, but if you would like to run your own version, you can simply clone this repository down and run it yourself.
+The server is powered by `zkdoc_sdk`.
+
+### Usage
+
+After cloning the repository, simple do:
+
+```bash
+cargo run -p zkdoc_server
+```
+
+With that, you should have a server running at port `8080`.
+>>>>>>> d4c4cd4 (chore: update Cargo.toml in preperation for publishing)

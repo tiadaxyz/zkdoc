@@ -2,7 +2,7 @@
 
 use clap::{Arg, ArgAction, ArgGroup, Command, Parser};
 use colored::*;
-use core_lib::services::services::{
+use zkdoc_sdk::services::services::{
     generate_proof, get_file_commitment_and_selected_row, get_selected_row, verify_correct_selector,
 };
 use serde::{Deserialize, Serialize};

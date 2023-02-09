@@ -1,7 +1,10 @@
 [package]
 name = "zkdoc_cli"
 version = "0.0.0"
+description = "CLI for zkdoc that allows generation of commitment, proof and verification of proof."
 edition = "2021"
+license = "MIT"
+repository = "https://github.com/medi-0/core/tree/main/zkdoc_cli"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -13,5 +16,6 @@ serde = { version = "1.0", features = ["derive"] }
 serde_derive = "1.0.117"
 serde_json = "1.0.59"
 spinners = "4.1.0"
+
 # local lib
-core_lib.workspace = true
+zkdoc_sdk.workspace = true

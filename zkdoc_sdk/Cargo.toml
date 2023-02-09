@@ -1,7 +1,10 @@
 [package]
 name = "zkdoc_sdk"
-edition = "2021"
 version = "0.0.0"
+description = "SDK for zkdoc allowing plug and play with any application"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/medi-0/core/tree/main/zkdoc_sdk"
 
 [features]
 dev-graph = ["halo2_proofs/dev-graph", "plotters"]
