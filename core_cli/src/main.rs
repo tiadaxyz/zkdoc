@@ -9,8 +9,9 @@ use serde::{Deserialize, Serialize};
 use spinners::{Spinner, Spinners};
 // use std::fs;
 // use std::process;
+use std::io::prelude::*;
 use std::time::{Duration, Instant};
-use std::{fs, process, str::FromStr};
+use std::{fs, fs::File, process, str, str::FromStr};
 const ROW: usize = 10;
 
 #[derive(Deserialize)]
@@ -26,6 +27,12 @@ struct ProofVerificationRequest {
     row_title: String,
     row_content: String,
     commitment: String,
+}
+
+fn save_to_file(filename: &str, data: &str) -> Result<(), std::io::Error> {
+    let mut file = File::create(filename)?;
+    file.write_all(data.as_bytes())?;
+    Ok(())
 }
 
 fn main() {
@@ -101,6 +108,19 @@ fn main() {
             );
             sp.stop_with_newline();
             println!("{}: {}", "Commitment".green().bold(), commitment.green());
+            /// Save value to file
+            match save_to_file("commitment.txt", &commitment) {
+                Ok(_) => println!(
+                    "{}: {}",
+                    "Commitment saved to file".green().bold(),
+                    "commitment.txt".green()
+                ),
+                Err(_) => println!(
+                    "{}: {}",
+                    "Failed to save commitment to file".red().bold(),
+                    "commitment.txt".red()
+                ),
+            }
         }
         Some(("gen-proof", matches)) => {
             println!("{}", "## Generate proof ##".cyan().bold());
@@ -130,7 +150,21 @@ fn main() {
             );
             // let proof_string = String::from_utf8(proof).unwrap();
             sp.stop_with_newline();
-            println!("{}: {:?}", "Proof".green().bold(), proof);
+            // println!("{}: {:?}", "Proof".green().bold(), proof);
+            /// Save value to file
+            let proof_string = serde_json::to_string(&proof).unwrap();
+            match save_to_file("proof.txt", &proof_string) {
+                Ok(_) => println!(
+                    "{}: {}",
+                    "proof saved to file".green().bold(),
+                    "proof.txt".green()
+                ),
+                Err(_) => println!(
+                    "{}: {}",
+                    "Failed to save proof to file".red().bold(),
+                    "proof.txt".red()
+                ),
+            }
         }
         Some(("verify-proof", matches)) => {
             println!("{}", "## Verify proof##".cyan().bold());
