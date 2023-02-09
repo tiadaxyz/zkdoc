@@ -19,14 +19,14 @@ struct GenerateCommitmentAndProofRequest {
     row_selectors: [u64; ROW],
 }
 
-/// Search for a pattern in a file and display the lines that contain it.
-#[derive(Parser)]
-struct Cli {
-    /// The pattern to look for
-    // pattern: String,
-    /// The path to the file to read
-    path: std::path::PathBuf,
-}
+// /// Search for a pattern in a file and display the lines that contain it.
+// #[derive(Parser)]
+// struct Cli {
+//     /// The pattern to look for
+//     // pattern: String,
+//     /// The path to the file to read
+//     path: std::path::PathBuf,
+// }
 
 fn main() {
     let cmd = clap::Command::new("medi0-cli")
@@ -66,30 +66,29 @@ fn main() {
                         .help("Input file needs to be a valid JSON file"),
                 ),
         );
-    let args = Cli::parse();
-
+    
     let matches = cmd.get_matches();
     /// Matches subcommand and runs the corresponding functions
-    // let matches = match matches.subcommand() {
     match matches.subcommand() {
         Some(("gen-commitment", matches)) => {
-            println!("gen-commitment ran successfully");
-            /// get contents of a file
-            let contents =
-                fs::read_to_string(args.path).expect("Something went wrong reading the file");
+            println!("{}", "Generating commitment...".cyan().bold());
+            /// Get the input file path
+            let input_file = matches.get_one::<String>("input-file").unwrap();
+            /// Parse the contents of the input file
+            let contents = fs::read_to_string(input_file)
+                .unwrap_or_else(|_| { panic!("{}", "Something went wrong reading the file".red().to_string()) });
+            let json_contents =
+                serde_json::from_str::<GenerateCommitmentAndProofRequest>(&contents)
+                    .unwrap_or_else(|_| { panic!("{}", "Failed to deserialize JSON file.\nRefer to the sample 'gen-commitment.json' as reference".red().to_string()) });
+            println!("{}: {}","Input file path".blue(), input_file.blue().bold());
 
-            // get contents of a file
-            // let json_contents =
-            //     serde_json::from_str::<GenerateCommitmentAndProofRequest>(&contents)
-            //         .expect("Failed to deserialize JSON");
-            // println!("JSON contents:\n{:#?}", json_contents.row_selector_u64);
-
-            // let commitment = get_file_commitment_and_selected_row(
-            //     req.row_titles.to_owned(),
-            //     req.row_contents.to_owned(),
-            //     req.row_selectors.to_owned(),
-            // );
-            // println!("input-file: {}", matches.value_of("input-file").unwrap());
+            /// Calling the function to generate the commitment
+            let commitment: String = get_file_commitment_and_selected_row(
+                json_contents.row_titles.to_owned(),
+                json_contents.row_contents.to_owned(),
+                json_contents.row_selectors.to_owned(),
+            );
+            println!("{}: {}", "Commitment".green().bold(), commitment.green());
         }
         Some(("gen-proof", matches)) => {
             println!("gen-proof ran successfully");
