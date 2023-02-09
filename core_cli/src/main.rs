@@ -5,11 +5,12 @@ use colored::*;
 use core_lib::services::services::{
     generate_proof, get_file_commitment_and_selected_row, get_selected_row, verify_correct_selector,
 };
-use std::fs;
-use std::process;
-
 use serde::{Deserialize, Serialize};
-
+use spinners::{Spinner, Spinners};
+// use std::fs;
+// use std::process;
+use std::time::{Duration, Instant};
+use std::{fs, process, str::FromStr};
 const ROW: usize = 10;
 
 #[derive(Deserialize)]
@@ -65,12 +66,15 @@ fn main() {
                         .help("Input file needs to be a valid JSON file"),
                 ),
         );
+    // Choose a spinner style
+    // let spinner = Spinner::new(Spinners::Dots, "Elapsed time: ".to_owned());
+    let spinner_name = "Dots12".to_string();
 
     let matches = cmd.get_matches();
     /// Matches subcommand and runs the corresponding functions
     match matches.subcommand() {
         Some(("gen-commitment", matches)) => {
-            println!("{}", "Generating commitment...".cyan().bold());
+            println!("{}", "## Generate commitment ##".cyan().bold());
             /// Get the input file path
             let input_file = matches.get_one::<String>("input-file").unwrap();
             /// Parse the contents of the input file
@@ -84,17 +88,22 @@ fn main() {
                 serde_json::from_str::<GenerateCommitmentAndProofRequest>(&contents)
                     .unwrap_or_else(|_| { panic!("{}", "Failed to deserialize JSON file.\nRefer to the sample 'gen-commitment.json' as reference".red().to_string()) });
             println!("{}: {}", "Input file path".blue().bold(), input_file.blue());
-
+            // Start the spinner animation
+            let mut sp = Spinner::with_timer(
+                Spinners::from_str(&spinner_name).unwrap(),
+                "ZK circuit is running...".into(),
+            );
             /// Calling the function to generate the commitment
             let commitment: String = get_file_commitment_and_selected_row(
                 json_contents.row_titles.to_owned(),
                 json_contents.row_contents.to_owned(),
                 json_contents.row_selectors.to_owned(),
             );
+            sp.stop_with_newline();
             println!("{}: {}", "Commitment".green().bold(), commitment.green());
         }
         Some(("gen-proof", matches)) => {
-            println!("{}", "Generating proof...".cyan().bold());
+            println!("{}", "## Generate proof ##".cyan().bold());
             /// Get the input file path
             let input_file = matches.get_one::<String>("input-file").unwrap();
             /// Parse the contents of the input file
@@ -108,7 +117,11 @@ fn main() {
                 serde_json::from_str::<GenerateCommitmentAndProofRequest>(&contents)
                     .unwrap_or_else(|_| { panic!("{}", "Failed to deserialize JSON file.\nRefer to the sample 'gen-proof.json' as reference".red().to_string()) });
             println!("{}: {}", "Input file path".blue().bold(), input_file.blue());
-
+            // Start the spinner animation
+            let mut sp = Spinner::with_timer(
+                Spinners::from_str(&spinner_name).unwrap(),
+                "ZK circuit is running...".into(),
+            );
             /// Calling the function to generate the proof
             let proof = generate_proof(
                 json_contents.row_titles.to_owned(),
@@ -116,11 +129,11 @@ fn main() {
                 json_contents.row_selectors.to_owned(),
             );
             // let proof_string = String::from_utf8(proof).unwrap();
-
+            sp.stop_with_newline();
             println!("{}: {:?}", "Proof".green().bold(), proof);
         }
         Some(("verify-proof", matches)) => {
-            println!("{}", "Verifying proof...".cyan().bold());
+            println!("{}", "## Verify proof##".cyan().bold());
             /// Get the input file path
             let input_file = matches.get_one::<String>("input-file").unwrap();
             /// Parse the contents of the input file
@@ -134,19 +147,28 @@ fn main() {
                 serde_json::from_str::<ProofVerificationRequest>(&contents)
                     .unwrap_or_else(|_| { panic!("{}", "Failed to deserialize JSON file.\nRefer to the sample 'gen-proof.json' as reference".red().to_string()) });
             println!("{}: {}", "Input file path".blue().bold(), input_file.blue());
-
+            // Start the spinner animation
+            let mut sp = Spinner::with_timer(
+                Spinners::from_str(&spinner_name).unwrap(),
+                "ZK circuit is running...".into(),
+            );
             /// Calling the function to verify the proof
-             let row_accumulator = get_selected_row(
-                json_contents.row_title.to_owned(), 
-                json_contents.row_content
+            let row_accumulator = get_selected_row(
+                json_contents.row_title.to_owned(),
+                json_contents.row_content,
             );
             let is_valid = verify_correct_selector(
                 json_contents.commitment.to_owned(),
                 row_accumulator,
-                json_contents.proof
+                json_contents.proof,
             );
+            sp.stop_with_newline();
             match is_valid {
-                true => println!("{}: {}", "Proof verification".green().bold(), "true".green()),
+                true => println!(
+                    "{}: {}",
+                    "Proof verification".green().bold(),
+                    "true".green()
+                ),
                 false => println!("{}: {}", "Proof verification".green().bold(), "false".red()),
             }
         }
