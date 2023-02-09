@@ -1,5 +1,5 @@
 [package]
-name = "core_lib"
+name = "zkdoc_sdk"
 edition = "2021"
 version = "0.0.0"
 

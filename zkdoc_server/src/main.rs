@@ -1,6 +1,6 @@
 use actix_cors::Cors;
 use actix_web::{get, middleware, post, web, App, HttpResponse, HttpServer, Responder, Result};
-use core_lib::services::services::{
+use zkdoc_sdk::services::services::{
     generate_proof, get_file_commitment_and_selected_row, get_selected_row, verify_correct_selector,
 };
 use serde::{Deserialize, Serialize};
