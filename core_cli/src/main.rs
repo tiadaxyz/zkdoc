@@ -62,7 +62,7 @@ fn main() {
         )
         .subcommand(
             Command::new("verify-proof")
-                .about("Verifies a given commitment")
+                .about("Verifies a proof against a given commitment")
                 .arg(
                     Arg::new("input-file")
                         .short('i')
