@@ -19,14 +19,6 @@ struct GenerateCommitmentAndProofRequest {
     row_selectors: [u64; ROW],
 }
 
-// /// Search for a pattern in a file and display the lines that contain it.
-// #[derive(Parser)]
-// struct Cli {
-//     /// The pattern to look for
-//     // pattern: String,
-//     /// The path to the file to read
-//     path: std::path::PathBuf,
-// }
 
 fn main() {
     let cmd = clap::Command::new("medi0-cli")
@@ -80,7 +72,7 @@ fn main() {
             let json_contents =
                 serde_json::from_str::<GenerateCommitmentAndProofRequest>(&contents)
                     .unwrap_or_else(|_| { panic!("{}", "Failed to deserialize JSON file.\nRefer to the sample 'gen-commitment.json' as reference".red().to_string()) });
-            println!("{}: {}","Input file path".blue(), input_file.blue().bold());
+            println!("{}: {}","Input file path".blue().bold(), input_file.blue());
 
             /// Calling the function to generate the commitment
             let commitment: String = get_file_commitment_and_selected_row(
@@ -91,7 +83,27 @@ fn main() {
             println!("{}: {}", "Commitment".green().bold(), commitment.green());
         }
         Some(("gen-proof", matches)) => {
-            println!("gen-proof ran successfully");
+            println!("{}", "Generating proof...".cyan().bold());
+            /// Get the input file path
+            let input_file = matches.get_one::<String>("input-file").unwrap();
+            /// Parse the contents of the input file
+            let contents = fs::read_to_string(input_file)
+                .unwrap_or_else(|_| { panic!("{}", "Something went wrong reading the file".red().to_string()) });
+            let json_contents =
+                serde_json::from_str::<GenerateCommitmentAndProofRequest>(&contents)
+                    .unwrap_or_else(|_| { panic!("{}", "Failed to deserialize JSON file.\nRefer to the sample 'gen-proof.json' as reference".red().to_string()) });
+            println!("{}: {}","Input file path".blue().bold(), input_file.blue());
+
+            /// Calling the function to generate the proof
+            let proof = generate_proof(
+                json_contents.row_titles.to_owned(),
+                json_contents.row_contents.to_owned(),
+                json_contents.row_selectors.to_owned(),
+            );
+            // let proof_string = String::from_utf8(proof).unwrap();
+
+            println!("{}: {:?}", "Proof".green().bold(), proof );
+            
         }
         Some(("verify", matches)) => {
             println!("verify ran successfully");
