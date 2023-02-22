@@ -61,6 +61,7 @@ impl<F: FieldExt> FileHashRowSelectorChip<F> {
         }
     }
 
+    #[allow(clippy::type_complexity)]
     pub fn assign(
         &self,
         mut layouter: impl Layouter<F>,

@@ -2,14 +2,14 @@
 
 use clap::{Arg, ArgAction, ArgGroup, Command, Parser};
 use colored::*;
-use zkdoc_sdk::services::services::{
-    generate_proof, get_file_commitment_and_selected_row, get_selected_row, verify_correct_selector,
-};
 use serde::{Deserialize, Serialize};
 use spinners::{Spinner, Spinners};
 use std::io::prelude::*;
 use std::time::{Duration, Instant};
 use std::{fs, fs::File, process, str, str::FromStr};
+use zkdoc_sdk::services::{
+    generate_proof, get_file_commitment_and_selected_row, get_selected_row, verify_correct_selector,
+};
 const ROW: usize = 10;
 
 #[derive(Deserialize)]
@@ -149,11 +149,7 @@ fn main() {
             /// Save value to file
             let proof_string = serde_json::to_string(&proof).unwrap();
             match save_to_file("proof.txt", &proof_string) {
-                Ok(_) => println!(
-                    "{}: {}",
-                    "Output file".green().bold(),
-                    "proof.txt".green()
-                ),
+                Ok(_) => println!("{}: {}", "Output file".green().bold(), "proof.txt".green()),
                 Err(_) => println!(
                     "{}: {}",
                     "Failed to save proof to file".red().bold(),

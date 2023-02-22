@@ -1,6 +1,6 @@
 use sha2::{Digest, Sha256};
 
-pub fn get_sha256(input: &str) -> [u64;4] {
+pub fn get_sha256(input: &str) -> [u64; 4] {
     let hashed = Sha256::digest(input);
 
     #[cfg(test)]
@@ -37,22 +37,22 @@ pub fn get_sha256(input: &str) -> [u64;4] {
         println!("hashed_num: {:?}", res_u64);
     }
 
-
     let res_u64: [u64; 4] = res_u64.as_slice().try_into().unwrap();
     res_u64
 }
 
-pub fn sha256_str_to_u64_arr (input: &str) -> [u64;4] {
+pub fn sha256_str_to_u64_arr(input: &str) -> [u64; 4] {
     let new_val = input.trim_start_matches("0x");
     if new_val.len() != 64 {
         panic!("Incorrect length of sha256");
     }
 
-    let mut new_u64_arr = Vec::new();
-    new_u64_arr.push(u64::from_str_radix(new_val[0..16].to_owned().as_str(), 16).unwrap());
-    new_u64_arr.push(u64::from_str_radix(new_val[16..32].to_owned().as_str(), 16).unwrap());
-    new_u64_arr.push(u64::from_str_radix(new_val[32..48].to_owned().as_str(), 16).unwrap());
-    new_u64_arr.push(u64::from_str_radix(new_val[48..64].to_owned().as_str(), 16).unwrap());
+    let new_u64_arr = vec![
+        u64::from_str_radix(new_val[0..16].to_owned().as_str(), 16).unwrap(),
+        u64::from_str_radix(new_val[16..32].to_owned().as_str(), 16).unwrap(),
+        u64::from_str_radix(new_val[32..48].to_owned().as_str(), 16).unwrap(),
+        u64::from_str_radix(new_val[48..64].to_owned().as_str(), 16).unwrap(),
+    ];
 
     new_u64_arr.as_slice().try_into().unwrap()
 }

@@ -1,9 +1,9 @@
 use actix_cors::Cors;
 use actix_web::{get, middleware, post, web, App, HttpResponse, HttpServer, Responder, Result};
-use zkdoc_sdk::services::services::{
+use serde::{Deserialize, Serialize};
+use zkdoc_sdk::services::{
     generate_proof, get_file_commitment_and_selected_row, get_selected_row, verify_correct_selector,
 };
-use serde::{Deserialize, Serialize};
 
 const ROW: usize = 10;
 

@@ -11,11 +11,13 @@ struct PoseidonConfig {
     poseidon_config: Config<3, 2, 2>,
 }
 
+#[allow(unused)]
 struct PoseidonChip {
     config: PoseidonConfig,
 }
 
 impl PoseidonChip {
+    #[allow(unused)]
     pub fn construct(config: PoseidonConfig) -> Self {
         Self { config }
     }
@@ -66,10 +68,7 @@ impl Circuit<Fp> for PoseidonCircuit {
 
 #[cfg(test)]
 mod tests {
-    use halo2_gadgets::poseidon::{
-        primitives::{self as poseidon, ConstantLength, P128Pow5T3, Spec},
-        Hash,
-    };
+    use halo2_gadgets::poseidon::primitives::{self as poseidon, ConstantLength, P128Pow5T3};
     use halo2_proofs::{circuit::Value, dev::MockProver, pasta::Fp};
 
     use super::PoseidonCircuit;

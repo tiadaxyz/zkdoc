@@ -1,39 +1,39 @@
 use halo2_gadgets::poseidon::primitives::{self as poseidon, ConstantLength, P128Pow5T3};
-use halo2_proofs::{pasta::Fp};
+use halo2_proofs::pasta::Fp;
 
-pub fn convert_hash_u32_to_u64(hash_u32: [u32; 8]) -> [u64; 4] {
-    let mut res = Vec::new();
-    for i in 0..4 {
-        let starting_index = i * 2;
-        let arr = [hash_u32[starting_index], hash_u32[starting_index + 1]];
-        let res_u64 = convert_u32_to_u64_BE(arr);
-        res.push(res_u64);
-    }
+// pub fn convert_hash_u32_to_u64(hash_u32: [u32; 8]) -> [u64; 4] {
+//     let mut res = Vec::new();
+//     for i in 0..4 {
+//         let starting_index = i * 2;
+//         let arr = [hash_u32[starting_index], hash_u32[starting_index + 1]];
+//         let res_u64 = convert_u32_to_u64_BE(arr);
+//         res.push(res_u64);
+//     }
 
-    res.try_into().unwrap()
-}
+//     res.try_into().unwrap()
+// }
 
-fn convert_u32_to_u64_BE(u32_array: [u32; 2]) -> u64 {
-    u32_array[0] as u64 * u64::pow(2, 32) + u32_array[1] as u64
-}
+// fn convert_u32_to_u64_BE(u32_array: [u32; 2]) -> u64 {
+//     u32_array[0] as u64 * u64::pow(2, 32) + u32_array[1] as u64
+// }
 
-fn convert_hash_u64_to_u32(hash_u64: [u64; 4]) -> [u32; 8] {
-    let mut res = Vec::new();
-    for num in hash_u64 {
-        let res_u32 = convert_u64_to_u32_BE(num);
-        res.push(res_u32[0]);
-        res.push(res_u32[1]);
-    }
+// fn convert_hash_u64_to_u32(hash_u64: [u64; 4]) -> [u32; 8] {
+//     let mut res = Vec::new();
+//     for num in hash_u64 {
+//         let res_u32 = convert_u64_to_u32_BE(num);
+//         res.push(res_u32[0]);
+//         res.push(res_u32[1]);
+//     }
 
-    res.try_into().unwrap()
-}
+//     res.try_into().unwrap()
+// }
 
-fn convert_u64_to_u32_BE(input: u64) -> [u32; 2] {
-    let lower = input as u32;
-    let upper = (input >> 32) as u32;
+// fn convert_u64_to_u32_BE(input: u64) -> [u32; 2] {
+//     let lower = input as u32;
+//     let upper = (input >> 32) as u32;
 
-    [upper, lower]
-}
+//     [upper, lower]
+// }
 
 pub fn get_file_commitment_and_selected_row<const L: usize>(
     row_title: [[Fp; 4]; L],
@@ -80,8 +80,8 @@ pub fn get_file_commitment_and_selected_row<const L: usize>(
     let mut file_commitment = poseidon::Hash::<_, P128Pow5T3, ConstantLength<2>, 3, 2>::init()
         .hash([row_hash[0], row_hash[1]]);
 
-    for i in 2..row_content.len() {
-        let message = [file_commitment, row_hash[i]];
+    for i in row_hash.into_iter().skip(2) {
+        let message = [file_commitment, i];
         let output = poseidon::Hash::<_, P128Pow5T3, ConstantLength<2>, 3, 2>::init().hash(message);
         file_commitment = output;
     }
@@ -94,16 +94,13 @@ pub fn get_file_commitment_and_selected_row<const L: usize>(
 
 #[cfg(test)]
 mod tests {
-    use crate::utils::poseidon::convert_hash_u64_to_u32;
-
-    use super::convert_hash_u32_to_u64;
-    // use bitvec::prelude::BitArray as A;
-
-    use bitvec::{array::BitArray, order::Lsb0};
+    use crate::utils::conversion::{
+        convert_hash_u32_to_u64, convert_hash_u64_to_u32, convert_to_u64_array,
+    };
+    use bitvec::array::BitArray;
+    use ff::PrimeFieldBits;
     use halo2_gadgets::poseidon::primitives::{self as poseidon, ConstantLength, P128Pow5T3};
     use halo2_proofs::pasta::Fp;
-
-    use ff::PrimeFieldBits;
 
     #[test]
     fn test() {
@@ -187,9 +184,9 @@ mod tests {
             )
         );
 
-        let xx = row_accumulator.to_le_bits();
-        let yy = xx.as_raw_slice();
-        let zz: [u64; 4] = yy.try_into().unwrap();
+        // let xx = row_accumulator.to_le_bits();
+        // let yy = xx.as_raw_slice();
+        // let zz: [u64; 4] = yy.try_into().unwrap();
     }
 
     #[test]
@@ -240,14 +237,5 @@ mod tests {
 
         println!("output_u32: {:?}", output_u32);
         println!("output_u32_2: {:?}", output_u32_2);
-    }
-
-    fn convert_to_u64_array(input: &[u64]) -> [u64; 4] {
-        let mut res = Vec::new();
-        for i in 0..4 {
-            res.push(input[i]);
-        }
-
-        res.try_into().unwrap()
     }
 }

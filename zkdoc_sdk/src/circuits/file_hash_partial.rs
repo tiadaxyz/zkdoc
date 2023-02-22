@@ -1,11 +1,12 @@
 use crate::gadgets::poseidon::{PoseidonChip, PoseidonConfig};
-use halo2_gadgets::{poseidon::primitives::P128Pow5T3, utilities::Var};
+use halo2_gadgets::poseidon::primitives::P128Pow5T3;
 use halo2_proofs::{
-    circuit::{floor_planner::V1, Layouter, Value},
+    circuit::{floor_planner::V1, Value},
     pasta::Fp,
-    plonk::{Advice, Circuit, Column, ConstraintSystem, Error, Instance},
+    plonk::{Advice, Circuit, Column, ConstraintSystem, Instance},
 };
 
+#[allow(unused)]
 #[derive(Clone)]
 pub struct FileHashPartialConfig {
     row_title_advice: Column<Advice>,
@@ -15,6 +16,7 @@ pub struct FileHashPartialConfig {
     poseidon_config: PoseidonConfig<3, 2, 2>,
 }
 
+#[allow(unused)]
 pub struct FileHashPartialChip {
     config: FileHashPartialConfig,
 }
@@ -33,8 +35,8 @@ impl FileHashPartialChip {
         meta.enable_equality(instance);
 
         let state = (0..3).map(|_| meta.advice_column()).collect::<Vec<_>>();
-        for i in 0..3 {
-            meta.enable_equality(state[i]);
+        for i in state.iter().take(3) {
+            meta.enable_equality(*i);
         }
 
         let poseidon_config = PoseidonChip::<P128Pow5T3, 3, 2, 2>::configure(meta, state);
@@ -101,8 +103,8 @@ impl<const L: usize> Circuit<Fp> for FileHashPartialCircuit<L> {
             &starting_poseidon_hash_message,
         )?;
 
-        for i in 2..L {
-            let message_cells = [accumulated_hash.clone(), file_hashes[i].clone()];
+        for hash in file_hashes.iter().take(L).skip(2) {
+            let message_cells = [accumulated_hash.clone(), hash.clone()];
             accumulated_hash =
                 poseidon_cs.hash(layouter.namespace(|| "poseidon chip"), &message_cells)?;
         }
