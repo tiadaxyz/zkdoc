@@ -55,13 +55,13 @@ impl<S: Spec<Fp, WIDTH, RATE>, const WIDTH: usize, const RATE: usize, const L: u
         let pow5_config = Pow5Chip::configure::<S>(
             meta,
             state.clone().try_into().unwrap(),
-            partial_sbox.try_into().unwrap(),
+            partial_sbox,
             rc_a.try_into().unwrap(),
             rc_b.try_into().unwrap(),
         );
 
         PoseidonConfig {
-            inputs: state.clone().try_into().unwrap(),
+            inputs: state,
             // instance,
             pow5_config,
         }
@@ -115,7 +115,7 @@ impl<S: Spec<Fp, WIDTH, RATE>, const WIDTH: usize, const RATE: usize, const L: u
                     .enumerate()
                     .map(|(i, word)| {
                         word.copy_advice(
-                            || format!("word {}", i),
+                            || format!("word {i}"),
                             &mut region,
                             self.config.inputs[i],
                             0,

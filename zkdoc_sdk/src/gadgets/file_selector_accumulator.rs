@@ -50,6 +50,7 @@ impl<F: FieldExt> FileSelectorAccumulatorChip<F> {
         }
     }
 
+    #[allow(clippy::type_complexity)]
     pub fn assign_first(
         &self,
         mut layouter: impl Layouter<F>,
@@ -76,6 +77,7 @@ impl<F: FieldExt> FileSelectorAccumulatorChip<F> {
         )
     }
 
+    #[allow(clippy::type_complexity)]
     pub fn assign(
         &self,
         mut layouter: impl Layouter<F>,

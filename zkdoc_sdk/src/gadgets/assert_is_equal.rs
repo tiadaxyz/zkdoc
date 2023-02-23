@@ -47,6 +47,7 @@ impl<F: FieldExt> AssertIsEqualChip<F> {
         }
     }
 
+    #[allow(clippy::type_complexity)]
     pub fn assign(
         &self,
         mut layouter: impl Layouter<F>,
@@ -75,8 +76,9 @@ mod tests {
     use halo2_proofs::{
         arithmetic::FieldExt,
         circuit::{SimpleFloorPlanner, Value},
+        dev::MockProver,
         pasta::Fp,
-        plonk::Circuit, dev::MockProver,
+        plonk::Circuit,
     };
 
     use super::{AssertIsEqualChip, AssertIsEqualConfig};
@@ -103,7 +105,7 @@ mod tests {
         fn synthesize(
             &self,
             config: Self::Config,
-            mut layouter: impl halo2_proofs::circuit::Layouter<F>,
+            #[allow(unused)] mut layouter: impl halo2_proofs::circuit::Layouter<F>,
         ) -> Result<(), halo2_proofs::plonk::Error> {
             let cs = AssertIsEqualChip::construct(config);
 
@@ -120,7 +122,7 @@ mod tests {
 
         let circuit = TestCircuit {
             left: Value::known(left),
-            right: Value::known(right)
+            right: Value::known(right),
         };
 
         let prover = MockProver::run(k, &circuit, vec![]).unwrap();
