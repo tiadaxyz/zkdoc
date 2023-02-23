@@ -14,13 +14,12 @@ jobs:
         runs-on: "ubuntu-latest"
         steps:
             - uses: "actions/checkout@v3"
-            - name: "Setup cmake"
-              uses: "jwlawson/actions-setup-cmake@v1.13"
             - uses: "actions-rs/toolchain@v1"
               with:
                   override: true
                   profile: "minimal"
                   toolchain: "stable"
+            - uses: "Swatinem/rust-cache@v2"
             - uses: "actions-rs/cargo@v1"
               with:
                   command: "check"
@@ -30,16 +29,23 @@ jobs:
         runs-on: "ubuntu-latest"
         steps:
             - uses: "actions/checkout@v3"
-            - name: "Setup cmake"
-              uses: "jwlawson/actions-setup-cmake@v1.13"
             - uses: "actions-rs/toolchain@v1"
               with:
                   override: true
                   profile: "minimal"
                   toolchain: "stable"
-            - uses: "actions-rs/cargo@v1"
+                  components: "llvm-tools-preview"
+            - name: "Retreive cached dependecies"
+              uses: "Swatinem/rust-cache@v2"
+            - name: "Setup coverage env"
+              uses: "taiki-e/install-action@cargo-llvm-cov"
+            - name: "Generate code coverage"
+              run: "cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info"
+            - name: "Upload coverage reports to Codecov"
+              uses: "codecov/codecov-action@v3"
               with:
-                  command: "test"
+                  files: "lcov.info"
+                  fail_ci_if_error: false
 
     fmt:
         name: "Rustfmt"
@@ -50,7 +56,7 @@ jobs:
               with:
                   override: true
                   profile: "minimal"
-                  toolchain: "nightly"
+                  toolchain: "stable"
             - run: "rustup component add rustfmt"
             - uses: "actions-rs/cargo@v1"
               with:
